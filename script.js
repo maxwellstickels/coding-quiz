@@ -12,6 +12,7 @@ var startBtn = document.querySelector("#start-button");
 var resetBtn = document.querySelector("#reset-button");
 var timerArea = document.querySelector("#timer-area");
 var questionArea = document.querySelector("#question");
+var nameArea = document.querySelector("#textarea");
 var answer1 = document.querySelector("#answer-1");
 var answer2 = document.querySelector("#answer-2");
 var answer3 = document.querySelector("#answer-3");
@@ -32,6 +33,11 @@ var questionNum = 0;
 // To be randomized by shuffle()
 var questionOrder = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
+// Highscore variable. Even indices are names, odd are scores;
+var highscores = JSON.parse(localStorage.getItem("highscores"));
+if (highscores == null || highscores.length === 0) {
+    highscores = ["AAA", "0", "AAA", "0", "AAA", "0", "AAA", "0"];
+}
 
 // Question & Answer Sets (4 possible answers per question)
 var questions = [
@@ -77,8 +83,9 @@ function startTimer(event) {
         timeAllowed -= 0.01;
         if (score != 0) {
             clearInterval(timer);
+            timeAllowed = 50;
         }
-        if (timeAllowed <= 0) {
+        else if (timeAllowed <= 0) {
             clearInterval(timer);
             timeAllowed = 0;
             questionArea.textContent = "GAME OVER!";
@@ -86,6 +93,7 @@ function startTimer(event) {
             answer2.textContent = "Try again!";
             answer3.textContent = "Try again!";
             answer4.textContent = "Try again!";
+            startBtn.disabled = false;
 
         }
         timerArea.textContent = "Time Left: " + timeAllowed.toFixed(2);
@@ -108,7 +116,6 @@ function renderQuestion() {
     var answerOrder = [0, 1, 2, 3];
     answerOrder = shuffle(answerOrder);
     question.textContent = (questionNum + 1) + ") " + questions[questionOrder[questionNum]];
-    console.log();
     answer1.textContent = answers[questionOrder[questionNum]][answerOrder[0]];
     answer2.textContent = answers[questionOrder[questionNum]][answerOrder[1]];
     answer3.textContent = answers[questionOrder[questionNum]][answerOrder[2]];
@@ -119,20 +126,23 @@ function submitGuess(event) {
     var target = event.target;
     if (target.textContent == answers[questionOrder[questionNum]][0]) {
         questionNum++;
+        // If not at end of quiz, render next question
         if (questionNum < questions.length) {
             renderQuestion();
         }
+        // Otherwise, render victory screen
         else {
             answer1.disabled = true;
             answer2.disabled = true;
             answer3.disabled = true;
             answer4.disabled = true;
             score = (timeAllowed * 100).toFixed(0);
+            highscores = addHighScore();
             questionArea.textContent = "WELL DONE! YOUR SCORE IS: " + score + ".\nHIGHSCORES:";
-            answer1.textContent = "300";
-            answer2.textContent = "100";
-            answer3.textContent = "50";
-            answer4.textContent = "49";
+            answer1.textContent = highscores[0] + " -- " + highscores[1];
+            answer2.textContent = highscores[2] + " -- " + highscores[3];
+            answer3.textContent = highscores[4] + " -- " + highscores[5];
+            answer4.textContent = highscores[6] + " -- " + highscores[7];
         }
     }
     else {
@@ -140,7 +150,27 @@ function submitGuess(event) {
     }
 }
 
+function addHighScore() {
+    var newScores = highscores;
+    var newName = nameArea.value;
+    if (newName.length === 0) {
+        newName = "AAA";
+    }
+    for (var i = 1; i < highscores.length; i += 2) {
+        if (score > Number(highscores[i])) {
+            newScores.splice(i - 1, 0, String(score));
+            newScores.splice(i - 1, 0, newName);
+            newScores.pop();
+            newScores.pop();
+            var newLocalScores = JSON.stringify(newScores);
+            localStorage.setItem("highscores", newLocalScores);
+            return newScores;
+        }
+    }
+    return newScores;
+}
 function startQuiz() {
+    score = 0;
     startBtn.disabled = true;
     resetBtn.disabled = false;
     answer1.disabled = false;
@@ -159,9 +189,9 @@ function resetQuiz() {
     answer2.disabled = true;
     answer3.disabled = true;
     answer4.disabled = true;
-    timeAllowed = 0;
+    score = -1;
     questionNum = 0;
-    questionArea.textContent = "";
+    questionArea.textContent = "Click Start Quiz to Begin!";
     answer1.textContent = "";
     answer2.textContent = "";
     answer3.textContent = "";

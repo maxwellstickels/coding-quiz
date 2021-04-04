@@ -16,4 +16,4 @@ The application is started simply by hitting the Start Quiz button. From there, 
 This website was designed with HTML 5, CSS 3.0, and Javascript (2020 Build) in Visual Studio Code 1.55.0.
 
 ## Example Image
-![Screenshot From The Site](https://github.com/maxwellstickels/coding-quiz/blob/main/fullsitescreenshot.PNG)
+![Screenshot From The Site](https://github.com/maxwellstickels/coding-quiz/blob/main/fullsitescreenshot.png)

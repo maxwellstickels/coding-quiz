@@ -152,7 +152,7 @@ function submitGuess(event) {
 
 function addHighScore() {
     var newScores = highscores;
-    var newName = nameArea.value;
+    var newName = nameArea.value.toUpperCase();
     if (newName.length === 0) {
         newName = "AAA";
     }
